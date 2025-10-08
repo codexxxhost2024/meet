@@ -210,12 +210,17 @@ function DemoMeetingTab(props: { label: string }) {
   const router = useRouter();
   const [e2ee, setE2ee] = useState(false);
   const [sharedPassphrase, setSharedPassphrase] = useState(randomString(64));
+  const defaultLang =
+    (typeof process !== 'undefined' && (process as any).env?.NEXT_PUBLIC_DEFAULT_LANG) || 'en';
+  const [selectedLang, setSelectedLang] = useState(defaultLang);
 
   const startMeeting = () => {
+    const room = generateRoomId();
+    const base = `/rooms/${room}?lang=${encodeURIComponent(selectedLang)}`;
     if (e2ee) {
-      router.push(`/rooms/${generateRoomId()}#${encodePassphrase(sharedPassphrase)}`);
+      router.push(`${base}#${encodePassphrase(sharedPassphrase)}`);
     } else {
-      router.push(`/rooms/${generateRoomId()}`);
+      router.push(base);
     }
   };
 
@@ -224,6 +229,7 @@ function DemoMeetingTab(props: { label: string }) {
       <p style={{ margin: 0 }}>
         Try <strong>Zumi — Multi Translator Meeting</strong> with our live demo.
       </p>
+      <LanguageDropdown value={selectedLang} onChange={setSelectedLang} />
       <button style={{ marginTop: '1rem' }} className="lk-button" onClick={startMeeting}>
         Start Meeting
       </button>
